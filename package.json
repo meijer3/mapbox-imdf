@@ -1,20 +1,32 @@
 {
-  "name": "mapbox-imdf",
+  "name": "geo-api-support",
   "version": "1.0.0",
-  "description": "Loading IMDF styles into mapbox",
+  "description": "",
   "main": "index.js",
+  "dependencies": {
+    "mapbox-gl": "^1.11.1",
+    "mapbox-imdf": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "nodemon": "^2.0.4"
+  },
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "babel-node": "babel-node --presets=latest",
+    "start": "nodemon --exec npm run babel-node --  src/app.js",
+    "build": "babel src -d dist"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/meijer3/mapbox-imdf.git"
+    "url": "git+https://gitlab.com/SGIS_DEV/geo-api-support.git"
   },
-  "author": "Sander Meijer",
+  "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/meijer3/mapbox-imdf/issues"
+    "url": "https://gitlab.com/SGIS_DEV/geo-api-support/issues"
   },
-  "homepage": "https://github.com/meijer3/mapbox-imdf#readme"
+  "homepage": "https://gitlab.com/SGIS_DEV/geo-api-support#readme"
 }

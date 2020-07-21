@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Indoor Public Basemap</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <!-- <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script> -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        select {
+            position: relative;
+            z-index: 900;
+            padding: 3px 4px;
+            margin: 20px 40px;
+            width: 160px;
+            display: block;
+            border: 10px solid rgba(0, 0, 0, 0.21);
+            border-radius: 8px;
+            background-clip: padding-box;
+
+        }
+
+        form {
+            position: absolute;
+            bottom: 20px;
+            right: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <form>
+        <select id="format">
+            <option value="geojson" selected>Geojsons</option>
+            <option value="mvt">Vectortiles</option>
+        </select>
+        <select id="levels">
+            <option value="all" selected>Show all levels</option>
+        </select>
+    </form>
+    <script type="module">
+
+        import 'https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js';
+        import { layers_array, level_uuids, load_geojsons, load_vectortiles } from './src/app.js'
+
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2FuZGVybWVpamVyIiwiYSI6ImNrNjIwdDFpMjA2eTYza3Q2bGRibXlxNHIifQ.wiN3LYeCSfVswOH--fmrkA';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+
+            center: [4.7627, 52.3097],
+            zoom: 16
+        });
+
+
+        const level_el = document.querySelector('#levels')
+        const format_el = document.querySelector('#format')
+        window.map = map
+        const addLevelsToSelect = () => {
+            var start_level = 0
+            level_uuids.map(e => {
+                var opt = document.createElement('option');
+                if (start_level == e.text.short_name.en) start_level = e.value // get UUID of floor if start_level matches a floor
+                opt.value = e.value;
+                opt.innerHTML = e.text.short_name.en;
+                level_el.appendChild(opt);
+            })
+            updateLevel(start_level)
+        }
+        const pickformat = (f) => {
+            console.log('Format Demo:', f == 'geojson')
+            layers_array.forEach(layer => {
+                if (typeof map.getLayer(layer) !== 'undefined') {
+                    console.log('removeing', layer)
+                    map.removeLayer(layer)
+                    if (!layer.includes('text_')) map.removeSource(layer)
+                }
+            })
+            if (f == 'geojson') {
+                load_geojsons('http://localhost:3001/geojson/', map).then((e) => addLevelsToSelect())
+            } else {
+                load_vectortiles('http://localhost:3001/imdf/{z}/{x}/{y}.mvt', map).then((e) => addLevelsToSelect())
+            }
+        }
+        const updateLevel = (value) => {
+            if (value) level_el.value = value;
+            level_el.dispatchEvent(new Event('change'))
+        }
+        window.zoomTo = () => {
+            var coordinates = map.querySourceFeatures('amenity')[0].geometry.coordinates
+
+
+            console.log(map.querySourceFeatures('amenity')[0].properties.level_id == level_el.value, map.querySourceFeatures('amenity')[0].properties, map.querySourceFeatures('amenity')[0].geometry)
+            map.flyTo({ center: coordinates });
+        }
+
+        var hoveredStateId = null;
+        map.on('load', function () {
+
+            // For styling only, remove all other labels and train tunnel
+            map.getStyle().layers.forEach(lyr => { if (lyr.type === 'symbol' || lyr.id.includes('pedestrian')) map.removeLayer(lyr.id) })
+
+
+
+            // For demo only: pick a format
+            format_el.onchange = (e) => pickformat(e.srcElement.value)
+            format_el.dispatchEvent(new Event('change'))
+
+            // Extra demo, filtering on Vector tiles based on floor (extra attribute...)
+            level_el.onchange = (e) => { if (e.srcElement.value != 'all') layers_array.filter(e => e != 'level' && e != 'anchor').forEach((layer) => map.setFilter(layer, ["==", "level_id", e.srcElement.value])) }
+        });
+
+        map.on('click', function (e) {
+            var features = map.queryRenderedFeatures([e.point.x, e.point.y], { layers: layers_array.filter(e => e != 'level' && e != 'anchor') });
+            features.forEach(f => console.log(f.properties))
+        });
+
+        //[...new Set(window.map.querySourceFeatures('section').map((f)=>f.properties.category))]
+
+        map.on('mousemove', 'geofence', function (e) {
+            if (e.features.length > 0) {
+                if (hoveredStateId) {
+                    map.setFeatureState( { source: 'geofence', id: hoveredStateId }, { hover: false } );
+                }
+                hoveredStateId = e.features[0].id;
+                map.setFeatureState({ source: 'geofence', id: hoveredStateId }, { hover: true } );
+            }
+        });
+
+        // When the mouse leaves the state-fill layer, update the feature state of the
+        // previously hovered feature.
+        map.on('mouseleave', 'geofence', function () {
+            if (hoveredStateId) {
+                map.setFeatureState( { source: 'geofence', id: hoveredStateId }, { hover: false });
+            }
+            hoveredStateId = null;
+        });
+
+    </script>
+</body>
+
+</html>
