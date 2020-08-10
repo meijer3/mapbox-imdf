@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "mapbox-gl": "^1.11.1",
-    "mapbox-imdf": "^1.0.0"
+    "mapbox-imdf": "^1.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
@@ -20,13 +20,8 @@
     "build": "babel src -d dist"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://gitlab.com/SGIS_DEV/geo-api-support.git"
+    "type": "git"
   },
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://gitlab.com/SGIS_DEV/geo-api-support/issues"
-  },
-  "homepage": "https://gitlab.com/SGIS_DEV/geo-api-support#readme"
+  "license": "ISC"
 }
