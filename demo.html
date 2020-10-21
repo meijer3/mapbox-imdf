@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Indoor Public Basemap</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        select {
+            position: relative;
+            z-index: 900;
+            padding: 3px 4px;
+            margin: 20px 40px;
+            width: 160px;
+            display: block;
+            border: 10px solid rgba(0, 0, 0, 0.21);
+            border-radius: 8px;
+            background-clip: padding-box;
+
+        }
+
+        form {
+            position: absolute;
+            bottom: 20px;
+            right: 0px;
+        }
+
+        div#popup {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            max-width: 300px;
+            padding: 10px 20px;
+            background: #000000e0;
+            border-radius: 3px;
+            z-index: 99;
+            margin: 10px 0px 0 -160px;
+            box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.4);
+            color: white;
+        }
+
+        div#popup:before {
+            content: '';
+            border-bottom: 10px #000000e0 solid;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 0;
+            height: 0;
+            margin-left: 140px;
+            text-shadow: 0 0 20px black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map">
+        <div id="popup" style="top:-100px;"></div>
+    </div>
+    <form>
+        <select id="dataset">
+            <option value="IMDF_original" selected>IMDF (old)</option>
+            <option value="IMDF_public">IMDF_public</option>
+            <option value="IMDF_internal">IMDF_internal</option>
+        </select>
+
+        <select id="format">
+            <option value="geojson" selected>Geojsons</option>
+            <option value="mvt">Vectortiles</option>
+            <option value="esrimvt"> Esri Vectortiles</option>
+        </select>
+        <select id="levels">
+            <option value="all" selected>Show all levels</option>
+        </select>
+    </form>
+    <script type="module" src="build/app.bundle.js"></script>
+</body>
+
+</html>

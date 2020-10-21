@@ -1,37 +1,27 @@
-export function imdf_styler(layer) {
+export function imdf_styler (layer) {
     if (layer == 'unit') {
         return {
-            'fill-color': {
-                type: "categorical",
-                property: "category",
-                default: 'red',
-                stops: [
-                    ['nonpublic', '#C4BFB3'],
-                    ['escalator', '#C7DADC'],
-                    ['stairs', '#C7DADC'],
-                    ['elevator', '#C7DADC'],
-                    ['ramp', '#C7DADC'],
-                    ['restroom.unisex', '#C7DADC'],
-                    ['restroom.male', '#C7DADC'],
-                    ['restroom.female', '#C7DADC'],
-                    ['restroom', '#C7DADC'],
-                    ['parking', '#C7DADC'],
-                    ['checkin', '#C7DADC'],
-                    ['immigration', 'red'],
-                    ['postsecurity', 'red'],
-                    ['presecurity', 'green'],
-                    // ['unspecified', 'red'],
-                    ['walkway', '#FEFEFE'],
-                    ['walkway_seperately', '#FEFEFE'],
-                    ['room', '#FEEED8'],
-                    ['security', '#EECECF'],
-                    ['0-Vides', 'rgba(114,114,114,0.75)'],
-                    ['privatelounge', '#EECECF']
-                ]
-            },
-
+            'fill-color':
+                ['match',
+                    ['get', 'category'],
+                    ['room'], ['case', ['boolean', ['feature-state', 'hover'], false], '#ffd9a4', '#FEEED8'],
+                    ['walkway'], '#FEFEFE',
+                    ['nonpublic'], '#C4BFB3',
+                    ['escalator', 'stairs', 'elevator', 'ramp', 'restroom.unisex', 'restroom.male', 'restroom.female', 'restroom', 'parking', 'checkin'],
+                    ['case', ['boolean', ['feature-state', 'hover'], false], '#ffd9a4', '#C7DADC'],
+                    ['immigration', 'postsecurity'], 'red',
+                    ['presecurity'], 'green',
+                    ['security'], '#EECECF',
+                    ['opentobelow'], '#eee',
+                    ['privatelounge'], '#FEFEFE',
+                    'grey'
+                ],
             'fill-opacity': 1,
-            "fill-outline-color": "rgba(37,37,37,0.3)",
+            "fill-outline-color": ['case',
+                ['all', ['==', ['get', 'category'], 'room'], ['boolean', ['feature-state', 'hover'], false]],
+                "rgba(37,37,37,1)",
+                "rgba(37,37,37,0.3)"
+            ],
         }
     } else if (layer == 'fixture') {
         return {
@@ -62,8 +52,8 @@ export function imdf_styler(layer) {
             'circle-color': '#11b4da',
             'circle-radius': {
                 "stops": [
-                    [17, 4],
-                    [18, 0]
+                    [16, 4],
+                    [19, 0]
                 ]
             }
         }
@@ -88,26 +78,37 @@ export function imdf_styler(layer) {
         }
     } else if (layer == 'level') {
         return {
-            'fill-color': '#aaa'
+            'fill-color': '#191a1a'
         }
     } else if (layer == 'geofence') {
         return {
-            'fill-color': 'rgba(0,0,0,0.3)',
+            'fill-color': 'rgba(0,0,0,0.7)',
             'fill-opacity': [
                 'case',
                 ['boolean', ['feature-state', 'hover'], false],
                 0,
                 1
-                ]
+            ]
         }
-    } else {
+    } else if (layer == 'anchor') {
         return {
-            'fill-color': '#ddd'
+            'circle-color': '#11b4da',
+            'circle-radius': {
+                "stops": [
+                    [17, 4],
+                    [18, 0]
+                ]
+            }
         }
     }
+    // else {
+    //     return {
+    //         'fill-color': '#ddd'
+    //     }
+    // }
 }
 
-export function imdf_labeler(layer) {
+export function imdf_labeler (layer) {
     if (layer == 'fixture') {
         return {
             'text-field': ['get', 'en', ['get', 'name']],
