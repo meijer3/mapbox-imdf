@@ -18,7 +18,7 @@ const addLayerToMap = (map, source, layer, hasSourceLayer) => {
         'id': layer,
         'source': source,
         'source-layer': layer,
-        'filter': ['level'].includes(layer) ? ['!=', ['get', 'ordinal'], 0] : ['==', '1', '1'], // All below ground
+        // 'filter': ['level'].includes(layer) ? ['!=', ['get', 'ordinal'], 0] : ['==', '1', '1'], // All below ground
         'type': ['fixture', 'kiosk'].includes(layer) ? 'fill-extrusion' : ['amenity', 'anchor', 'occupant'].includes(layer) ? 'circle' : 'fill',
         'minzoom': ['amenity'].includes(layer) ? 16 : ['occupant'].includes(layer) ? 16 : 10,
         'paint': imdf_styler(layer),
@@ -71,7 +71,12 @@ const flattenRelationships = (geojsons) => {
     geojsons.filter(d => d.name == 'occupant')[0].features.map(f => {
         try{
         var anchor = anchor_geojson.features.filter(a => f.properties.anchor_id == a.properties.id)[0]
+        if(typeof anchor == 'undefined') throw new Error(`No anchor found by id: ${f.properties.anchor_id}`)
+
         var unit = unit_geojson.features.filter(unit => anchor.properties.unit_id == unit.properties.id)[0]
+        
+        if(typeof unit == 'undefined') throw new Error(`No unit found by anchor id: ${ anchor.properties.unit_id}`)
+
         f.geometry = anchor.geometry
         f.properties.unit_id = unit.properties.id
         f.properties.level_id = unit.properties.level_id
@@ -87,7 +92,7 @@ const flattenRelationships = (geojsons) => {
         .map(f => { f.features = f.features.filter(f => ['security', 'immigration'].includes(f.properties.category)); return f })
 
 
-    // LEVELS = 
+    // geofence = 
     geojsons.filter(d => d.name == 'geofence').map(fs => fs.features.map(f => { f.properties.level_id = f.properties.level_ids[0]; return f }))
 
 
@@ -95,6 +100,7 @@ const flattenRelationships = (geojsons) => {
     // Return without anchor
     return geojsons.filter(d => d.name !== 'anchor')
 }
+
 export const load_geojsons = (url, map) => {
     return new Promise((resolve, reject) => {
         Promise.all(layers_array.map(layer => fetch(url + layer + '.geojson').then((r) => r.json())))

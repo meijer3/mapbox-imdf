@@ -52,21 +52,32 @@ const addLevelsToSelect = (f) => {
         updateLevel(start_level)
     }
 }
+
+const deleteSource = (name) => {
+    map.getStyle().layers.filter(lyr=>lyr.source === name).forEach(lyr=>{
+        map.removeLayer(lyr.id)
+    })
+    map.removeSource(name )
+    console.log('removed',name)
+}
+
 const pickformat = () => {
     const f = format_el.value
+    const dataset = dataset_el.value
+    console.clear()
+    console.log('The Demo:', f, dataset)
 
-    console.log('Format Demo:', f == 'geojson')
-    layers_array.forEach((layer) => {
-        if (typeof map.getLayer(layer) !== 'undefined') {
-            console.log('removeing', layer)
-            map.removeLayer(layer)
-            if (!layer.includes('text_')) map.removeSource(layer)
-        }
-    })
+    // Clean Layers_Array
+    // layers_array.forEach((l,i)=>{if(l.includes('text')){layers_array.splice(i)}})
+
+    for( var sourcename in map.style.sourceCaches){
+        if (sourcename == 'composite') continue
+        deleteSource(sourcename)
+    }
+
+
     var prom
     if (f == 'geojson') {
-        const dataset = dataset_el.value
-
         prom = load_geojsons('http://localhost:3002/'+dataset+'/', map)
     }
     else if (f == 'esrimvt') {
@@ -103,11 +114,10 @@ map.on('load', function () {
     map.getStyle().layers.forEach(lyr => { if (lyr.type === 'symbol' || lyr.id.includes('pedestrian')) map.removeLayer(lyr.id) })
 
     // For demo only: pick a format
+    dataset_el.onchange = () => pickformat()
     format_el.onchange = () => pickformat()
     format_el.dispatchEvent(new Event('change'))
 
-    dataset_el.onchange = () => pickformat()
-    dataset_el.dispatchEvent(new Event('change'))
 
     console.log('loaded!')
 
@@ -151,6 +161,7 @@ map.on('click', function (e) {
                         name_str = f.properties.category
                     }
                     return `<h4>${name_str}</h4><table>
+                    <tr><td>Alt name</td><td>${f.properties.alt_name}</td></tr>
                     <tr><td>Layer</td><td>${f.layer.id}</td></tr>
                     <tr><td>ID</td><td>${f.properties.id}</td></tr>
                     <tr><td>Category</td><td>${f.properties.category} </td></tr>
@@ -162,13 +173,11 @@ map.on('click', function (e) {
     }
     new mapboxgl.Popup()
         .setLngLat(e.lngLat)
-        .setHTML(features.map(f => `<table>
-        <tr><td>Layer</td><td>${f.layer.id}</td></tr>
-        <tr><td>ID</td><td>${f.properties.id}</td></tr>
-        <tr><td>Category</td><td>${f.properties.category}</td></tr>
-        <tr><td>Name</td><td>${f.properties.name} (${f.properties.alt_name})</td></tr>
-        <tr><td>Related</td><td>${f.properties.unit_id}</td></tr>
-        </table>`).join("<HR />"))
+        .setHTML(features.map(f => {
+            const rows = []
+            console.log(f.properties.entries())
+            f.properties.forEach(prop=>rows.push(`<tr><td>prop</td><td>${f.properties.prop}</td></tr>`))
+            return `<table>${rows}</table>`}).join("<HR />"))
         .addTo(map);
 
 

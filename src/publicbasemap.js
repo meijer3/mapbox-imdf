@@ -7,7 +7,7 @@ export function imdf_styler (layer) {
                     ['room'], ['case', ['boolean', ['feature-state', 'hover'], false], '#ffd9a4', '#FEEED8'],
                     ['walkway'], '#FEFEFE',
                     ['nonpublic'], '#C4BFB3',
-                    ['escalator', 'stairs', 'elevator', 'ramp', 'restroom.unisex', 'restroom.male', 'restroom.female', 'restroom', 'parking', 'checkin'],
+                    ['escalator', 'stairs', 'elevator', 'ramp', 'restroom.unisex','movingwalkway', 'restroom.male', 'restroom.female', 'restroom', 'parking', 'checkin'],
                     ['case', ['boolean', ['feature-state', 'hover'], false], '#ffd9a4', '#C7DADC'],
                     ['immigration', 'postsecurity'], 'red',
                     ['presecurity'], 'green',
